@@ -1,0 +1,460 @@
+basePath: /
+definitions:
+  models.CartItem:
+    properties:
+      id:
+        type: integer
+      price:
+        type: number
+      product_id:
+        type: integer
+      product_name:
+        type: string
+      quantity:
+        type: integer
+      subtotal:
+        type: number
+      user_id:
+        type: integer
+    type: object
+  models.Order:
+    properties:
+      id:
+        type: integer
+      product_id:
+        type: integer
+      quantity:
+        type: integer
+      status:
+        type: string
+      total_price:
+        type: number
+      user_id:
+        type: integer
+    type: object
+  models.Product:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      stock:
+        type: integer
+    type: object
+  models.User:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: E-Commerce Backend API
+  title: E-Commerce API
+  version: "1.0"
+paths:
+  /api/v1/admin/dashboard:
+    get:
+      description: Fetch admin dashboard statistics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get Dashboard Stats
+      tags:
+      - Dashboard
+  /api/v1/admin/orders:
+    get:
+      description: Fetch all orders (Admin)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get All Orders
+      tags:
+      - Admin Orders
+  /api/v1/admin/orders/{id}/status:
+    put:
+      consumes:
+      - application/json
+      description: Update order status (Admin)
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Status
+        in: body
+        name: status
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update Order Status
+      tags:
+      - Admin Orders
+  /api/v1/admin/products:
+    post:
+      consumes:
+      - application/json
+      description: Create a new product
+      parameters:
+      - description: Product Data
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/models.Product'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create Product
+      tags:
+      - Products
+  /api/v1/admin/products/{id}:
+    delete:
+      description: Delete product using ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete Product
+      tags:
+      - Products
+    put:
+      consumes:
+      - application/json
+      description: Update existing product
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated Product Data
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/models.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update Product
+      tags:
+      - Products
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login using email and password
+      parameters:
+      - description: Login Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login User
+      tags:
+      - Auth
+  /api/v1/auth/logout:
+    post:
+      description: Logout current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Logout User
+      tags:
+      - Auth
+  /api/v1/auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: User Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Signup User
+      tags:
+      - Auth
+  /api/v1/cart:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Clear Cart
+      tags:
+      - Cart
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get Cart
+      tags:
+      - Cart
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Cart Item
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/models.CartItem'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Add To Cart
+      tags:
+      - Cart
+  /api/v1/cart/{id}:
+    delete:
+      parameters:
+      - description: Cart Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Remove Cart Item
+      tags:
+      - Cart
+  /api/v1/checkout:
+    post:
+      description: Convert cart items into orders
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Checkout Cart
+      tags:
+      - Checkout
+  /api/v1/products:
+    get:
+      description: Fetch all available products
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get All Products
+      tags:
+      - Products
+  /api/v1/products/{id}:
+    get:
+      description: Fetch product details using product ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get Product By ID
+      tags:
+      - Products
+  /api/v1/user/orders:
+    get:
+      description: Fetch logged-in user's orders
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get My Orders
+      tags:
+      - Orders
+    post:
+      consumes:
+      - application/json
+      description: Place a new order
+      parameters:
+      - description: Order Data
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/models.Order'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create Order
+      tags:
+      - Orders
+  /api/v1/user/orders/{id}:
+    get:
+      description: Fetch single order of logged-in user
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get My Order By ID
+      tags:
+      - Orders
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
