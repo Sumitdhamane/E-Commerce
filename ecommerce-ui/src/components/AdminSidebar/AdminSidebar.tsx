@@ -1,10 +1,7 @@
-import { Link }
-from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const AdminSidebar = () => {
-
   return (
-
     <div
       className="
         w-64
@@ -13,7 +10,6 @@ const AdminSidebar = () => {
         p-6
       "
     >
-
       <h1
         className="
           text-white
@@ -26,32 +22,22 @@ const AdminSidebar = () => {
       </h1>
 
       <div className="space-y-6">
-
-        <Link
-          to="/admin/dashboard"
-          className="block text-white"
-        >
+        <Link to="/admin/dashboard" className="block text-white">
           Dashboard
         </Link>
 
-        <Link
-          to="/admin/products"
-          className="block text-white"
-        >
+        <Link to="/admin/products" className="block text-white">
           Products
         </Link>
 
-        <Link
-          to="/admin/orders"
-          className="block text-white"
-        >
+        <Link to="/admin/orders" className="block text-white">
           Orders
         </Link>
-
+        <Link to="/" className="block text-white">
+          Home
+        </Link>
       </div>
-
     </div>
-
   );
 };
 
