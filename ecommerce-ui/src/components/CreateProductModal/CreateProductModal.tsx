@@ -157,10 +157,10 @@ const CreateProductModal = ({ isOpen, onClose }: CreateProductModalProps) => {
                 </button>
                 <button
                   type="submit"
-                  disabled={createMutation.isLoading}
+                  disabled={createMutation.isPending}
                   className="h-14 rounded-2xl bg-violet-600 px-8 font-semibold text-white transition hover:bg-violet-700 disabled:opacity-50"
                 >
-                  {createMutation.isLoading ? "Creating..." : "Create Product"}
+                  {createMutation.isPending ? "Creating..." : "Create Product"}
                 </button>
               </div>
             </div>

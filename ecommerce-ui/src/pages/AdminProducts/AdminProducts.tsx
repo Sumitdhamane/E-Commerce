@@ -1,219 +1,197 @@
-import { Link }
-from "react-router-dom";
+import { Link } from "react-router-dom";
 
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import API from "../../api/axios";
 
-import type { Product }
-from "../../types/product";
+import type { Product } from "../../types/product";
 
-import AdminSidebar
-from "../../components/AdminSidebar/AdminSidebar";
+import AdminSidebar from "../../components/AdminSidebar/AdminSidebar";
 
 // Fetch Products
-const fetchProducts =
-  async () => {
+const fetchProducts = async () => {
+  const response = await API.get("/admin/products");
 
-    const response =
-      await API.get(
-        "/admin/products"
-      );
-
-    return response.data.data;
-
+  return response.data.data || [];
 };
 
 const AdminProducts = () => {
+  const queryClient = useQueryClient();
 
-  const queryClient =
-    useQueryClient();
-
-  // Products Query
-  const {
-    data: products = [],
-    isLoading,
-    error,
-  } = useQuery<Product[]>({
-
+  // Query
+  const { data, isLoading, error } = useQuery<Product[]>({
     queryKey: ["products"],
 
     queryFn: fetchProducts,
-
   });
 
-  // Delete Mutation
-  const deleteMutation =
-    useMutation({
+  // Safe Products
+  const products = Array.isArray(data) ? data : [];
 
-      mutationFn:
-        async (id: number) => {
+  // Delete Product
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return await API.delete(`/admin/products/${id}`);
+    },
 
-          return await API.delete(
-            `/admin/products/${id}`
-          );
-
-        },
-
-      onSuccess: () => {
-
-        queryClient.invalidateQueries({
-
-          queryKey: ["products"],
-
-        });
-
-      },
-
-    });
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["products"],
+      });
+    },
+  });
 
   // Loading
   if (isLoading) {
-
     return (
-
-      <h1
+      <div
         className="
-          text-white
-          text-2xl
-          p-10
+          min-h-screen
+          flex
+          items-center
+          justify-center
+          bg-[#030712]
         "
       >
-        Loading products...
-      </h1>
-
+        <h1
+          className="
+            text-white
+            text-3xl
+            font-bold
+          "
+        >
+          Loading products...
+        </h1>
+      </div>
     );
-
   }
 
   // Error
   if (error) {
-
     return (
-
-      <h1
+      <div
         className="
-          text-red-500
-          text-2xl
-          p-10
+          min-h-screen
+          flex
+          items-center
+          justify-center
+          bg-[#030712]
         "
       >
-        Failed to load products
-      </h1>
-
+        <h1
+          className="
+            text-red-500
+            text-3xl
+            font-bold
+          "
+        >
+          Failed to load products
+        </h1>
+      </div>
     );
-
   }
 
   return (
-
     <div
       className="
         flex
         min-h-screen
-        bg-slate-950
+        bg-[#030712]
+        text-white
       "
     >
-
       {/* Sidebar */}
       <AdminSidebar />
 
       {/* Main */}
-      <div className="flex-1 p-8">
-
+      <div
+        className="
+          flex-1
+          p-8
+          lg:p-10
+        "
+      >
         {/* Header */}
         <div
           className="
             flex
             flex-col
-            md:flex-row
-            md:items-center
-            md:justify-between
+            lg:flex-row
+            lg:items-center
+            lg:justify-between
             gap-6
             mb-10
           "
         >
-
+          {/* Left */}
           <div>
+            <div
+              className="
+                inline-flex
+                items-center
+                gap-2
+                bg-violet-500/10
+                border
+                border-violet-500/20
+                text-violet-400
+                px-4
+                py-2
+                rounded-full
+                text-sm
+                font-medium
+                mb-5
+              "
+            >
+              Ecommerce Admin
+            </div>
 
             <h1
               className="
-                text-3xl
-                font-bold
-                text-white
-                mb-2
+                text-5xl
+                font-black
+                tracking-tight
+                mb-3
               "
             >
-              Products
+              Product
+              <span
+                className="
+                  text-violet-500
+                "
+              >
+                {" "}
+                Management
+              </span>
             </h1>
 
             <p
               className="
                 text-slate-400
+                text-lg
+                max-w-2xl
               "
             >
-              Manage ecommerce inventory
-              and product catalog
+              Manage ecommerce products, inventory, pricing, and stock.
             </p>
-
           </div>
 
-          {/* Actions */}
-          <div
+          {/* Add Product */}
+          <Link
+            to="/admin/products/create"
             className="
-              flex
-              items-center
-              gap-4
+              bg-violet-600
+              hover:bg-violet-700
+              transition-all
+              px-7
+              py-4
+              rounded-2xl
+              font-semibold
+              shadow-lg
+              shadow-violet-500/20
             "
           >
-
-            {/* Search */}
-            <input
-
-              type="text"
-
-              placeholder="Search products..."
-
-              className="
-                bg-slate-900
-                border
-                border-slate-800
-                rounded-xl
-                px-5
-                py-3
-                text-white
-                outline-none
-                focus:border-violet-500
-                w-72
-              "
-            />
-
-            {/* Add Button */}
-            <Link
-
-              to="/admin/products/create"
-
-              className="
-                bg-violet-600
-                hover:bg-violet-700
-                transition
-                text-white
-                px-6
-                py-3
-                rounded-xl
-                font-medium
-                whitespace-nowrap
-              "
-            >
-              Add Product
-            </Link>
-
-          </div>
-
+            Add Product
+          </Link>
         </div>
 
         {/* Stats */}
@@ -226,22 +204,20 @@ const AdminProducts = () => {
             mb-10
           "
         >
-
+          {/* Total */}
           <div
             className="
               bg-slate-900
               border
               border-slate-800
-              rounded-2xl
+              rounded-3xl
               p-6
             "
           >
-
             <p
               className="
                 text-slate-400
-                text-sm
-                mb-2
+                mb-3
               "
             >
               Total Products
@@ -249,31 +225,28 @@ const AdminProducts = () => {
 
             <h2
               className="
-                text-white
-                text-3xl
-                font-bold
+                text-4xl
+                font-black
               "
             >
               {products.length}
             </h2>
-
           </div>
 
+          {/* In Stock */}
           <div
             className="
               bg-slate-900
               border
               border-slate-800
-              rounded-2xl
+              rounded-3xl
               p-6
             "
           >
-
             <p
               className="
                 text-slate-400
-                text-sm
-                mb-2
+                mb-3
               "
             >
               In Stock
@@ -281,36 +254,29 @@ const AdminProducts = () => {
 
             <h2
               className="
+                text-4xl
+                font-black
                 text-green-400
-                text-3xl
-                font-bold
               "
             >
-              {
-                products.filter(
-                  (product) =>
-                    product.stock > 0
-                ).length
-              }
+              {products.filter((p) => p.stock > 0).length}
             </h2>
-
           </div>
 
+          {/* Low Stock */}
           <div
             className="
               bg-slate-900
               border
               border-slate-800
-              rounded-2xl
+              rounded-3xl
               p-6
             "
           >
-
             <p
               className="
                 text-slate-400
-                text-sm
-                mb-2
+                mb-3
               "
             >
               Low Stock
@@ -318,302 +284,232 @@ const AdminProducts = () => {
 
             <h2
               className="
+                text-4xl
+                font-black
                 text-yellow-400
-                text-3xl
-                font-bold
               "
             >
-              {
-                products.filter(
-                  (product) =>
-                    product.stock < 5
-                ).length
-              }
+              {products.filter((p) => p.stock < 10).length}
             </h2>
-
           </div>
-
         </div>
 
-        {/* Products Table */}
-        <div
-          className="
-            bg-slate-900
-            border
-            border-slate-800
-            rounded-2xl
-            overflow-hidden
-          "
-        >
-
-          {/* Table Header */}
+        {/* Empty */}
+        {products.length === 0 && (
           <div
             className="
-              flex
-              items-center
-              justify-between
-              px-6
-              py-5
-              border-b
+              bg-slate-900
+              border
               border-slate-800
+              rounded-3xl
+              p-20
+              text-center
             "
           >
+            <h2
+              className="
+                text-4xl
+                font-bold
+                mb-4
+              "
+            >
+              No Products Found
+            </h2>
 
-            <div>
+            <p
+              className="
+                text-slate-400
+                text-lg
+              "
+            >
+              Create your first product.
+            </p>
+          </div>
+        )}
 
-              <h2
-                className="
-                  text-white
-                  text-xl
-                  font-bold
-                  mb-1
-                "
-              >
-                Product Inventory
-              </h2>
+        {/* Table */}
+        {products.length > 0 && (
+          <div
+            className="
+              bg-slate-900
+              border
+              border-slate-800
+              rounded-3xl
+              overflow-hidden
+            "
+          >
+            {/* Header */}
+            <div
+              className="
+                grid
+                grid-cols-5
+                gap-4
+                px-8
+                py-6
+                border-b
+                border-slate-800
+                text-slate-400
+                uppercase
+                text-sm
+                tracking-wider
+                font-semibold
+              "
+            >
+              <div>ID</div>
 
-              <p
-                className="
-                  text-slate-400
-                  text-sm
-                "
-              >
-                View and manage all products
-              </p>
+              <div>Product</div>
 
+              <div>Price</div>
+
+              <div>Stock</div>
+
+              <div className="text-right">Actions</div>
             </div>
 
-          </div>
-
-          {/* Table */}
-          <div className="overflow-x-auto">
-
-            <table className="w-full">
-
-              <thead>
-
-                <tr
+            {/* Rows */}
+            {products.map((product) => (
+              <div
+                key={product.id}
+                className="
+                  grid
+                  grid-cols-5
+                  gap-4
+                  items-center
+                  px-8
+                  py-6
+                  border-b
+                  border-slate-800
+                  hover:bg-slate-800/40
+                  transition-all
+                "
+              >
+                {/* ID */}
+                <div
                   className="
-                    border-b
-                    border-slate-800
                     text-slate-400
-                    text-sm
+                    font-medium
                   "
                 >
+                  #{product.id}
+                </div>
 
-                  <th className="p-5 text-left">
-                    Product
-                  </th>
+                {/* Product */}
+                <div>
+                  <h3
+                    className="
+                      text-lg
+                      font-semibold
+                      mb-1
+                    "
+                  >
+                    {product.name}
+                  </h3>
 
-                  <th className="p-5 text-left">
-                    Price
-                  </th>
+                  <p
+                    className="
+                      text-slate-400
+                      text-sm
+                      line-clamp-1
+                    "
+                  >
+                    {product.description}
+                  </p>
+                </div>
 
-                  <th className="p-5 text-left">
-                    Stock
-                  </th>
+                {/* Price */}
+                <div>
+                  <span
+                    className="
+                      text-violet-400
+                      text-lg
+                      font-bold
+                    "
+                  >
+                    ₹ {product.price}
+                  </span>
+                </div>
 
-                  <th className="p-5 text-left">
-                    Status
-                  </th>
+                {/* Stock */}
+                <div>
+                  <span
+                    className={`
+                      px-4
+                      py-2
+                      rounded-full
+                      text-sm
+                      font-semibold
 
-                  <th className="p-5 text-right">
-                    Actions
-                  </th>
+                      ${
+                        product.stock > 10
+                          ? `
+                            bg-green-500/20
+                            text-green-400
+                          `
+                          : `
+                            bg-yellow-500/20
+                            text-yellow-400
+                          `
+                      }
+                    `}
+                  >
+                    {product.stock} in stock
+                  </span>
+                </div>
 
-                </tr>
+                {/* Actions */}
+                <div
+                  className="
+                    flex
+                    items-center
+                    justify-end
+                    gap-4
+                  "
+                >
+                  {/* Edit */}
+                  <Link
+                    to={`/admin/products/edit/${product.id}`}
+                    className="
+                      bg-blue-500/10
+                      border
+                      border-blue-500/20
+                      text-blue-400
+                      hover:bg-blue-500/20
+                      transition-all
+                      px-5
+                      py-2
+                      rounded-xl
+                      font-medium
+                    "
+                  >
+                    Edit
+                  </Link>
 
-              </thead>
-
-              <tbody>
-
-                {products.map(
-                  (product) => (
-
-                    <tr
-
-                      key={product.id}
-
-                      className="
-                        border-b
-                        border-slate-800
-                        hover:bg-slate-800/40
-                        transition
-                      "
-                    >
-
-                      {/* Product */}
-                      <td className="p-5">
-
-                        <div>
-
-                          <h3
-                            className="
-                              text-white
-                              font-semibold
-                              mb-1
-                            "
-                          >
-                            {product.name}
-                          </h3>
-
-                          <p
-                            className="
-                              text-slate-400
-                              text-sm
-                            "
-                          >
-                            Product ID:
-                            {product.id}
-                          </p>
-
-                        </div>
-
-                      </td>
-
-                      {/* Price */}
-                      <td className="p-5">
-
-                        <span
-                          className="
-                            text-white
-                            font-medium
-                          "
-                        >
-                          ₹ {product.price}
-                        </span>
-
-                      </td>
-
-                      {/* Stock */}
-                      <td className="p-5">
-
-                        <span
-                          className="
-                            text-white
-                          "
-                        >
-                          {product.stock}
-                        </span>
-
-                      </td>
-
-                      {/* Status */}
-                      <td className="p-5">
-
-                        <span
-                          className={`
-                            px-3
-                            py-1
-                            rounded-full
-                            text-xs
-                            font-semibold
-
-                            ${
-                              product.stock > 5
-                                ? `
-                                  bg-green-500/20
-                                  text-green-400
-                                `
-                                : `
-                                  bg-yellow-500/20
-                                  text-yellow-400
-                                `
-                            }
-                          `}
-                        >
-
-                          {product.stock > 5
-                            ? "In Stock"
-                            : "Low Stock"}
-
-                        </span>
-
-                      </td>
-
-                      {/* Actions */}
-                      <td
-                        className="
-                          p-5
-                          text-right
-                        "
-                      >
-
-                        <div
-                          className="
-                            flex
-                            justify-end
-                            gap-3
-                          "
-                        >
-
-                          {/* Edit */}
-                          <Link
-
-                            to={`/admin/products/edit/${product.id}`}
-
-                            className="
-                              bg-slate-800
-                              hover:bg-slate-700
-                              transition
-                              text-white
-                              px-4
-                              py-2
-                              rounded-xl
-                              text-sm
-                              font-medium
-                            "
-                          >
-                            Edit
-                          </Link>
-
-                          {/* Delete */}
-                          <button
-
-                            onClick={() =>
-                              deleteMutation.mutate(
-                                product.id
-                              )
-                            }
-
-                            className="
-                              bg-red-500/20
-                              hover:bg-red-500/30
-                              transition
-                              text-red-400
-                              px-4
-                              py-2
-                              rounded-xl
-                              text-sm
-                              font-medium
-                            "
-                          >
-                            Delete
-                          </button>
-
-                        </div>
-
-                      </td>
-
-                    </tr>
-
-                  )
-                )}
-
-              </tbody>
-
-            </table>
-
+                  {/* Delete */}
+                  <button
+                    onClick={() => deleteMutation.mutate(product.id)}
+                    className="
+                      bg-red-500/10
+                      border
+                      border-red-500/20
+                      text-red-400
+                      hover:bg-red-500/20
+                      transition-all
+                      px-5
+                      py-2
+                      rounded-xl
+                      font-medium
+                    "
+                  >
+                    {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
-
-        </div>
-
+        )}
       </div>
-
     </div>
-
   );
-
 };
 
 export default AdminProducts;

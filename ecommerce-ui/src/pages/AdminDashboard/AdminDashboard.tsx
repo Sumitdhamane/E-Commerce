@@ -1,19 +1,13 @@
-import {
-  useQuery,
-} from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import API from "../../api/axios";
 
-import AdminSidebar
-from "../../components/AdminSidebar/AdminSidebar";
+import AdminSidebar from "../../components/AdminSidebar/AdminSidebar";
 
-import { CSVLink }
-from "react-csv";
-
+import { CSVLink } from "react-csv";
 
 // Types
 interface DashboardData {
-
   total_users: number;
 
   total_orders: number;
@@ -21,11 +15,9 @@ interface DashboardData {
   total_products: number;
 
   total_revenue: number;
-
 }
 
 interface Order {
-
   id: number;
 
   user_id: number;
@@ -33,83 +25,54 @@ interface Order {
   total_price: number;
 
   status: string;
-
 }
 
 // Fetch Dashboard
-const fetchDashboard =
-  async () => {
+const fetchDashboard = async () => {
+  const response = await API.get("/admin/dashboard");
 
-    const response =
-      await API.get(
-        "/admin/dashboard"
-      );
-
-    return response.data.data;
-
+  return response.data.data;
 };
 
 // Fetch Recent Orders
-const fetchRecentOrders =
-  async () => {
+const fetchRecentOrders = async () => {
+  const response = await API.get("/admin/orders");
 
-    const response =
-      await API.get(
-        "/admin/orders"
-      );
-
-    return response.data.data;
-
+  return response.data.data;
 };
 
 const AdminDashboard = () => {
-
   // Dashboard Query
   const {
     data: dashboard,
     isLoading,
     error,
   } = useQuery<DashboardData>({
-
     queryKey: ["dashboard"],
 
     queryFn: fetchDashboard,
-
   });
 
   // Recent Orders Query
-  const {
-    data: orders = [],
-  } = useQuery<Order[]>({
-
+  const { data: orders = [] } = useQuery<Order[]>({
     queryKey: ["admin-orders"],
 
     queryFn: fetchRecentOrders,
-
   });
 
-  const csvData =
-  orders.map((order) => ({
+  const csvData = orders.map((order) => ({
+    OrderID: order.id,
 
-    OrderID:
-      order.id,
+    UserID: order.user_id,
 
-    UserID:
-      order.user_id,
+    TotalPrice: order.total_price,
 
-    TotalPrice:
-      order.total_price,
-
-    Status:
-      order.status,
-
+    Status: order.status,
   }));
 
   // Loading
   if (isLoading) {
-
     return (
-
       <h1
         className="
           text-white
@@ -119,16 +82,12 @@ const AdminDashboard = () => {
       >
         Loading dashboard...
       </h1>
-
     );
-
   }
 
   // Error
   if (error || !dashboard) {
-
     return (
-
       <h1
         className="
           text-red-500
@@ -138,13 +97,10 @@ const AdminDashboard = () => {
       >
         Failed to load dashboard
       </h1>
-
     );
-
   }
 
   return (
-
     <div
       className="
         flex
@@ -152,13 +108,11 @@ const AdminDashboard = () => {
         bg-slate-950
       "
     >
-
       {/* Sidebar */}
       <AdminSidebar />
 
       {/* Main */}
       <div className="flex-1 p-8">
-
         {/* Header */}
         <div
           className="
@@ -168,9 +122,7 @@ const AdminDashboard = () => {
             mb-10
           "
         >
-
           <div>
-
             <h1
               className="
                 text-3xl
@@ -189,16 +141,12 @@ const AdminDashboard = () => {
             >
               Ecommerce analytics overview
             </p>
-
           </div>
 
           <CSVLink
-
-  data={csvData}
-
-  filename="orders-report.csv"
-
-  className="
+            data={csvData}
+            filename="orders-report.csv"
+            className="
     bg-violet-600
     hover:bg-violet-700
     transition
@@ -208,12 +156,9 @@ const AdminDashboard = () => {
     rounded-xl
     font-medium
   "
->
-
-  Generate Report
-
-</CSVLink>
-
+          >
+            Generate Report
+          </CSVLink>
         </div>
 
         {/* KPI Cards */}
@@ -227,7 +172,6 @@ const AdminDashboard = () => {
             mb-10
           "
         >
-
           {/* Users */}
           <div
             className="
@@ -238,7 +182,6 @@ const AdminDashboard = () => {
               p-6
             "
           >
-
             <p
               className="
                 text-slate-400
@@ -258,7 +201,6 @@ const AdminDashboard = () => {
             >
               {dashboard.total_users}
             </h2>
-
           </div>
 
           {/* Orders */}
@@ -271,7 +213,6 @@ const AdminDashboard = () => {
               p-6
             "
           >
-
             <p
               className="
                 text-slate-400
@@ -291,7 +232,6 @@ const AdminDashboard = () => {
             >
               {dashboard.total_orders}
             </h2>
-
           </div>
 
           {/* Products */}
@@ -304,7 +244,6 @@ const AdminDashboard = () => {
               p-6
             "
           >
-
             <p
               className="
                 text-slate-400
@@ -324,7 +263,6 @@ const AdminDashboard = () => {
             >
               {dashboard.total_products}
             </h2>
-
           </div>
 
           {/* Revenue */}
@@ -337,7 +275,6 @@ const AdminDashboard = () => {
               p-6
             "
           >
-
             <p
               className="
                 text-slate-400
@@ -357,9 +294,7 @@ const AdminDashboard = () => {
             >
               ₹ {dashboard.total_revenue}
             </h2>
-
           </div>
-
         </div>
 
         {/* Main Grid */}
@@ -371,7 +306,6 @@ const AdminDashboard = () => {
             gap-6
           "
         >
-
           {/* Recent Orders */}
           <div
             className="
@@ -383,7 +317,6 @@ const AdminDashboard = () => {
               p-6
             "
           >
-
             <div
               className="
                 flex
@@ -392,7 +325,6 @@ const AdminDashboard = () => {
                 mb-6
               "
             >
-
               <h2
                 className="
                   text-white
@@ -411,19 +343,13 @@ const AdminDashboard = () => {
               >
                 View All
               </button>
-
             </div>
 
             <div className="space-y-4">
-
-              {orders.slice(0, 5).map(
-                (order) => (
-
-                  <div
-
-                    key={order.id}
-
-                    className="
+              {orders.slice(0, 5).map((order) => (
+                <div
+                  key={order.id}
+                  className="
                       flex
                       justify-between
                       items-center
@@ -431,50 +357,46 @@ const AdminDashboard = () => {
                       rounded-xl
                       p-4
                     "
-                  >
-
-                    <div>
-
-                      <h3
-                        className="
+                >
+                  <div>
+                    <h3
+                      className="
                           text-white
                           font-semibold
                           mb-1
                         "
-                      >
-                        Order #{order.id}
-                      </h3>
+                    >
+                      Order #{order.id}
+                    </h3>
 
-                      <p
-                        className="
+                    <p
+                      className="
                           text-slate-400
                           text-sm
                         "
-                      >
-                        User ID:
-                        {order.user_id}
-                      </p>
+                    >
+                      User ID:
+                      {order.user_id}
+                    </p>
+                  </div>
 
-                    </div>
-
-                    <div
-                      className="
+                  <div
+                    className="
                         text-right
                       "
-                    >
-
-                      <h3
-                        className="
+                  >
+                    <h3
+                      className="
                           text-white
                           font-bold
                           mb-2
                         "
-                      >
-                        ₹ {order.total_price}
-                      </h3>
+                    >
+                      ₹ {order.total_price}
+                    </h3>
 
-                      <span
-                        className="
+                    <span
+                      className="
                           bg-green-500/20
                           text-green-400
                           px-3
@@ -483,19 +405,13 @@ const AdminDashboard = () => {
                           text-xs
                           font-semibold
                         "
-                      >
-                        {order.status}
-                      </span>
-
-                    </div>
-
+                    >
+                      {order.status}
+                    </span>
                   </div>
-
-                )
-              )}
-
+                </div>
+              ))}
             </div>
-
           </div>
 
           {/* Quick Stats */}
@@ -508,7 +424,6 @@ const AdminDashboard = () => {
               p-6
             "
           >
-
             <h2
               className="
                 text-white
@@ -521,7 +436,6 @@ const AdminDashboard = () => {
             </h2>
 
             <div className="space-y-5">
-
               <div
                 className="
                   bg-slate-800
@@ -529,7 +443,6 @@ const AdminDashboard = () => {
                   p-5
                 "
               >
-
                 <p
                   className="
                     text-slate-400
@@ -549,7 +462,6 @@ const AdminDashboard = () => {
                 >
                   ₹ 4,500
                 </h3>
-
               </div>
 
               <div
@@ -559,7 +471,6 @@ const AdminDashboard = () => {
                   p-5
                 "
               >
-
                 <p
                   className="
                     text-slate-400
@@ -579,7 +490,6 @@ const AdminDashboard = () => {
                 >
                   12
                 </h3>
-
               </div>
 
               <div
@@ -589,7 +499,6 @@ const AdminDashboard = () => {
                   p-5
                 "
               >
-
                 <p
                   className="
                     text-slate-400
@@ -609,21 +518,13 @@ const AdminDashboard = () => {
                 >
                   ₹ 1,20,000
                 </h3>
-
               </div>
-
             </div>
-
           </div>
-
         </div>
-
       </div>
-
     </div>
-
   );
-
 };
 
 export default AdminDashboard;
