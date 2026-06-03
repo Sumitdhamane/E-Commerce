@@ -1,192 +1,231 @@
 import { useState } from "react";
 
-import {
-  useQuery,
-} from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
-import { getProducts }
-from "../../api/productApi";
+import { getProducts } from "../../api/productApi";
 
-import ProductCard
-from "../../components/ProductCard/ProductCard";
+import ProductCard from "../../components/ProductCard/ProductCard";
 
-import type { Product }
-from "../../types/product";
+import type { Product } from "../../types/product";
 
-// Fetch Products Function
-const fetchProducts =
-  async () => {
+// Fetch Products
+const fetchProducts = async () => {
+  const products = await getProducts();
 
-    const response =
-      await getProducts();
- console.log(response);
-    return response;
-   
+  console.log(products);
+
+  return products;
 };
-
 const Products = () => {
+  const [search, setSearch] = useState("");
 
-  const [search, setSearch] =
-    useState("");
-
-  // TanStack Query
+  // Query
   const {
-    data: products,
+    data = [],
     isLoading,
     error,
   } = useQuery<Product[]>({
-
     queryKey: ["products"],
 
     queryFn: fetchProducts,
 
     staleTime: 1000 * 60,
-
   });
 
+  // Safe Products
+  const products = Array.isArray(data) ? data : [];
+
   // Filter Products
-  const filteredProducts =
-    products?.filter((product) =>
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(search.toLowerCase()),
+  );
 
-      product.name
-        .toLowerCase()
-        .includes(
-          search.toLowerCase()
-        )
-
-    );
-
-  // Loading State
+  // Loading
   if (isLoading) {
-
     return (
-
-      <h1
+      <div
         className="
-          text-white
-          text-3xl
-          p-10
+          min-h-screen
+          flex
+          items-center
+          justify-center
+          bg-[#030712]
         "
       >
-        Loading products...
-      </h1>
-
+        <h1
+          className="
+            text-white
+            text-3xl
+            font-bold
+          "
+        >
+          Loading products...
+        </h1>
+      </div>
     );
-
   }
 
-  // Error State
+  // Error
   if (error) {
-
     return (
-
-      <h1
+      <div
         className="
-          text-red-500
-          text-3xl
-          p-10
+          min-h-screen
+          flex
+          items-center
+          justify-center
+          bg-[#030712]
         "
       >
-        Failed to load products
-      </h1>
-
+        <h1
+          className="
+            text-red-500
+            text-3xl
+            font-bold
+          "
+        >
+          Failed to load products
+        </h1>
+      </div>
     );
-
   }
 
   return (
-
-    <div className="p-10">
-
-      {/* Heading */}
-      <h1
-        className="
-          text-white
-          text-5xl
-          font-bold
-          mb-10
-        "
-      >
-        Products
-      </h1>
-
-      {/* Search */}
-      <div className="mb-10">
-
-        <input
-
-          type="text"
-
-          placeholder="Search products..."
-
-          value={search}
-
-          onChange={(e) =>
-            setSearch(
-              e.target.value
-            )
-          }
-
+    <div
+      className="
+        min-h-screen
+        bg-[#030712]
+        text-white
+        p-10
+      "
+    >
+      {/* Header */}
+      <div className="mb-12">
+        <div
           className="
-            w-full
-            p-4
-            rounded-xl
-            bg-slate-800
-            text-white
+            inline-flex
+            items-center
+            gap-2
+            bg-violet-500/10
             border
-            border-slate-700
-            outline-none
-            focus:border-violet-500
-          "
-        />
-
-      </div>
-
-      {/* Empty State */}
-      {filteredProducts?.length === 0 && (
-
-        <h2
-          className="
-            text-white
-            text-2xl
-            mb-10
+            border-violet-500/20
+            text-violet-400
+            px-4
+            py-2
+            rounded-full
+            text-sm
+            font-medium
+            mb-5
           "
         >
-          No products found
-        </h2>
+          Premium Collection
+        </div>
 
-      )}
+        <h1
+          className="
+            text-5xl
+            lg:text-6xl
+            font-black
+            tracking-tight
+            mb-4
+          "
+        >
+          Explore
+          <span
+            className="
+              text-violet-500
+            "
+          >
+            {" "}
+            Products
+          </span>
+        </h1>
 
-      {/* Product Grid */}
-      <div
-        className="
-          grid
-          grid-cols-1
-          md:grid-cols-2
-          lg:grid-cols-3
-          gap-8
-        "
-      >
-
-        {Array.isArray(
-          filteredProducts
-        ) &&
-
-          filteredProducts.map(
-            (product) => (
-
-              <ProductCard
-                key={product.id}
-                product={product}
-              />
-
-            )
-          )}
-
+        <p
+          className="
+            text-slate-400
+            text-lg
+            max-w-2xl
+          "
+        >
+          Discover premium products with seamless shopping experience.
+        </p>
       </div>
 
-    </div>
+      {/* Search */}
+      <div className="mb-12">
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="
+            w-full
+            h-16
+            bg-slate-900
+            border
+            border-slate-800
+            rounded-2xl
+            px-6
+            text-white
+            text-lg
+            outline-none
+            focus:border-violet-500
+            transition-all
+          "
+        />
+      </div>
 
+      {/* Empty */}
+      {filteredProducts.length === 0 && (
+        <div
+          className="
+            bg-slate-900
+            border
+            border-slate-800
+            rounded-3xl
+            p-20
+            text-center
+          "
+        >
+          <h2
+            className="
+              text-4xl
+              font-bold
+              mb-4
+            "
+          >
+            No Products Found
+          </h2>
+
+          <p
+            className="
+              text-slate-400
+              text-lg
+            "
+          >
+            Try searching with another keyword.
+          </p>
+        </div>
+      )}
+
+      {/* Products */}
+      {filteredProducts.length > 0 && (
+        <div
+          className="
+            grid
+            grid-cols-1
+            md:grid-cols-2
+            lg:grid-cols-3
+            gap-8
+          "
+        >
+          {filteredProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 
