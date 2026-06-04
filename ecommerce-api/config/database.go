@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"time"
 
 	"ecommerce-api/internal/logger"
 
@@ -13,7 +14,6 @@ import (
 var DB *sql.DB
 
 func ConnectDB() {
-
 	var err error
 
 	dsn := fmt.Sprintf(
@@ -31,11 +31,21 @@ func ConnectDB() {
 		logger.ErrorLogger.Fatal(err)
 	}
 
-	err = DB.Ping()
+	for i := 1; i <= 10; i++ {
+		err = DB.Ping()
 
-	if err != nil {
-		logger.ErrorLogger.Fatal(err)
+		if err == nil {
+			logger.InfoLogger.Println("MySQL Connected")
+			return
+		}
+
+		logger.InfoLogger.Printf(
+			"Waiting for MySQL... Attempt %d/10\n",
+			i,
+		)
+
+		time.Sleep(5 * time.Second)
 	}
 
-	logger.InfoLogger.Println("MySQL Connected")
+	logger.ErrorLogger.Fatal(err)
 }

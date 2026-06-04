@@ -1,6 +1,33 @@
-version: '3'
+version: "3"
+
 
 services:
+  backend:
+    build: .
+    container_name: ecommerce-api
+
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      - mysql
+      - redis
+      - kafka
+
+    env_file:
+      - .env
+
+  frontend:
+    build:
+      context: ../ecommerce-ui
+
+    container_name: ecommerce-ui
+
+    ports:
+      - "5173:5173"
+
+    depends_on:
+      - backend
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
@@ -26,5 +53,30 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  mysql:
+    image: mysql:8.0
+    container_name: ecommerce-mysql
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ecommerce
+
+    ports:
+      - "3307:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis:7
+    container_name: redis
+
+    ports:
+      - "6379:6379"
+
+volumes:
+  mysql_data:
+

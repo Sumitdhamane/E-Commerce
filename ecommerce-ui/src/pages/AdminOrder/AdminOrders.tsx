@@ -1,618 +1,405 @@
 import {
-  useQuery,
+useQuery,
 } from "@tanstack/react-query";
 
 import API from "../../api/axios";
 
-import AdminSidebar
-from "../../components/AdminSidebar/AdminSidebar";
+import AdminSidebar from "../../components/AdminSidebar/AdminSidebar";
 
-// Order Type
 interface Order {
 
-  id: number;
+id: number;
 
-  user_id: number;
+user_id: number;
 
-  product_id: number;
+product_id: number;
 
-  quantity: number;
+quantity: number;
 
-  total_price: number;
+total_price: number;
 
-  status: string;
+status: string;
 
 }
 
-// Fetch Orders
-const fetchOrders =
-  async () => {
+const fetchOrders = async () => {
 
-    const response =
-      await API.get(
-        "/admin/orders"
-      );
+const response =
+await API.get(
+"/admin/orders"
+);
 
-    return response.data.data;
+console.log(
+"Orders Response:",
+response.data
+);
+
+return (
+response.data?.data || []
+);
 
 };
 
 const AdminOrders = () => {
 
-  // Orders Query
-  const {
-    data: orders = [],
-    isLoading,
-    error,
-  } = useQuery<Order[]>({
+const {
+data,
+isLoading,
+error,
+} = useQuery<Order[]>({
 
-    queryKey: ["admin-orders"],
 
-    queryFn: fetchOrders,
+queryKey: ["admin-orders"],
 
-    staleTime:
-      5 * 60 * 1000,
+queryFn: fetchOrders,
 
-  });
+staleTime:
+  5 * 60 * 1000,
 
-  // Loading
-  if (isLoading) {
 
-    return (
+});
+
+const orders: Order[] =
+Array.isArray(data)
+? data
+: [];
+
+const totalRevenue =
+orders.reduce(
+(
+total,
+order
+) =>
+total +
+Number(
+order.total_price || 0
+),
+0
+);
+
+const pendingOrders =
+orders.filter(
+(order) =>
+order.status
+?.toLowerCase() ===
+"pending"
+).length;
+
+if (isLoading) {
+
+
+return (
+
+  <div
+    className="
+      min-h-screen
+      flex
+      items-center
+      justify-center
+      bg-slate-950
+    "
+  >
+
+    <h1
+      className="
+        text-white
+        text-2xl
+      "
+    >
+      Loading Orders...
+    </h1>
+
+  </div>
+
+);
+
+
+}
+
+if (error) {
+
+return (
+
+  <div
+    className="
+      min-h-screen
+      flex
+      items-center
+      justify-center
+      bg-slate-950
+    "
+  >
+
+    <h1
+      className="
+        text-red-500
+        text-2xl
+      "
+    >
+      Failed to load orders
+    </h1>
+
+  </div>
+
+);
+
+
+}
+
+return (
+
+
+<div
+  className="
+    flex
+    min-h-screen
+    bg-slate-950
+  "
+>
+
+  <AdminSidebar />
+
+  <div className="flex-1 p-8">
+
+    <div className="mb-10">
 
       <h1
         className="
           text-white
-          text-2xl
-          p-10
+          text-4xl
+          font-bold
+          mb-2
         "
       >
-        Loading orders...
+        Orders Management
       </h1>
 
-    );
-
-  }
-
-  // Error
-  if (error) {
-
-    return (
-
-      <h1
+      <p
         className="
-          text-red-500
-          text-2xl
-          p-10
+          text-slate-400
         "
       >
-        Failed to load orders
-      </h1>
+        Track and manage customer orders
+      </p>
 
-    );
-
-  }
-
-  return (
+    </div>
 
     <div
       className="
-        flex
-        min-h-screen
-        bg-slate-950
+        grid
+        grid-cols-1
+        md:grid-cols-3
+        gap-6
+        mb-10
       "
     >
 
-      {/* Sidebar */}
-      <AdminSidebar />
+      <div
+        className="
+          bg-slate-900
+          rounded-2xl
+          border
+          border-slate-800
+          p-6
+        "
+      >
 
-      {/* Main */}
-      <div className="flex-1 p-8">
+        <p className="text-slate-400">
+          Total Orders
+        </p>
 
-        {/* Header */}
-        <div
+        <h2
           className="
-            flex
-            flex-col
-            lg:flex-row
-            lg:items-center
-            lg:justify-between
-            gap-6
-            mb-10
+            text-white
+            text-3xl
+            font-bold
+            mt-2
           "
         >
+          {orders.length}
+        </h2>
 
-          <div>
+      </div>
 
-            <h1
-              className="
-                text-3xl
-                font-bold
-                text-white
-                mb-2
-              "
-            >
-              Orders
-            </h1>
+      <div
+        className="
+          bg-slate-900
+          rounded-2xl
+          border
+          border-slate-800
+          p-6
+        "
+      >
 
-            <p
-              className="
-                text-slate-400
-              "
-            >
-              Track and manage customer orders
-            </p>
+        <p className="text-slate-400">
+          Revenue
+        </p>
 
-          </div>
-
-          {/* Filters */}
-          <div
-            className="
-              flex
-              items-center
-              gap-4
-            "
-          >
-
-            <input
-
-              type="text"
-
-              placeholder="Search orders..."
-
-              className="
-                bg-slate-900
-                border
-                border-slate-800
-                rounded-xl
-                px-5
-                py-3
-                text-white
-                outline-none
-                focus:border-violet-500
-                w-72
-              "
-            />
-
-            <select
-              className="
-                bg-slate-900
-                border
-                border-slate-800
-                rounded-xl
-                px-5
-                py-3
-                text-white
-                outline-none
-                focus:border-violet-500
-              "
-            >
-
-              <option>
-                All Status
-              </option>
-
-              <option>
-                Pending
-              </option>
-
-              <option>
-                Shipped
-              </option>
-
-              <option>
-                Delivered
-              </option>
-
-            </select>
-
-          </div>
-
-        </div>
-
-        {/* Stats */}
-        <div
+        <h2
           className="
-            grid
-            grid-cols-1
-            md:grid-cols-3
-            gap-6
-            mb-10
+            text-violet-400
+            text-3xl
+            font-bold
+            mt-2
           "
         >
+          ₹ {totalRevenue}
+        </h2>
 
-          {/* Total Orders */}
-          <div
-            className="
-              bg-slate-900
-              border
-              border-slate-800
-              rounded-2xl
-              p-6
-            "
-          >
+      </div>
 
-            <p
-              className="
-                text-slate-400
-                text-sm
-                mb-2
-              "
-            >
-              Total Orders
-            </p>
+      <div
+        className="
+          bg-slate-900
+          rounded-2xl
+          border
+          border-slate-800
+          p-6
+        "
+      >
 
-            <h2
-              className="
-                text-white
-                text-3xl
-                font-bold
-              "
-            >
-              {orders.length}
-            </h2>
+        <p className="text-slate-400">
+          Pending Orders
+        </p>
 
-          </div>
-
-          {/* Revenue */}
-          <div
-            className="
-              bg-slate-900
-              border
-              border-slate-800
-              rounded-2xl
-              p-6
-            "
-          >
-
-            <p
-              className="
-                text-slate-400
-                text-sm
-                mb-2
-              "
-            >
-              Total Revenue
-            </p>
-
-            <h2
-              className="
-                text-violet-400
-                text-3xl
-                font-bold
-              "
-            >
-              ₹ {
-                orders.reduce(
-                  (
-                    total,
-                    order
-                  ) =>
-
-                    total +
-                    order.total_price,
-
-                  0
-                )
-              }
-            </h2>
-
-          </div>
-
-          {/* Pending */}
-          <div
-            className="
-              bg-slate-900
-              border
-              border-slate-800
-              rounded-2xl
-              p-6
-            "
-          >
-
-            <p
-              className="
-                text-slate-400
-                text-sm
-                mb-2
-              "
-            >
-              Pending Orders
-            </p>
-
-            <h2
-              className="
-                text-yellow-400
-                text-3xl
-                font-bold
-              "
-            >
-              {
-                orders.filter(
-                  (order) =>
-
-                    order.status ===
-                    "pending"
-                ).length
-              }
-            </h2>
-
-          </div>
-
-        </div>
-
-        {/* Orders Table */}
-        <div
+        <h2
           className="
-            bg-slate-900
-            border
-            border-slate-800
-            rounded-2xl
-            overflow-hidden
+            text-yellow-400
+            text-3xl
+            font-bold
+            mt-2
           "
         >
-
-          {/* Table Header */}
-          <div
-            className="
-              flex
-              justify-between
-              items-center
-              px-6
-              py-5
-              border-b
-              border-slate-800
-            "
-          >
-
-            <div>
-
-              <h2
-                className="
-                  text-white
-                  text-xl
-                  font-bold
-                  mb-1
-                "
-              >
-                Recent Orders
-              </h2>
-
-              <p
-                className="
-                  text-slate-400
-                  text-sm
-                "
-              >
-                Manage all customer purchases
-              </p>
-
-            </div>
-
-          </div>
-
-          {/* Table */}
-          <div className="overflow-x-auto">
-
-            <table className="w-full">
-
-              <thead>
-
-                <tr
-                  className="
-                    border-b
-                    border-slate-800
-                    text-slate-400
-                    text-sm
-                  "
-                >
-
-                  <th className="p-5 text-left">
-                    Order
-                  </th>
-
-                  <th className="p-5 text-left">
-                    User
-                  </th>
-
-                  <th className="p-5 text-left">
-                    Product
-                  </th>
-
-                  <th className="p-5 text-left">
-                    Quantity
-                  </th>
-
-                  <th className="p-5 text-left">
-                    Total
-                  </th>
-
-                  <th className="p-5 text-left">
-                    Status
-                  </th>
-
-                  <th className="p-5 text-right">
-                    Action
-                  </th>
-
-                </tr>
-
-              </thead>
-
-              <tbody>
-
-                {orders.map((order) => (
-
-                  <tr
-
-                    key={order.id}
-
-                    className="
-                      border-b
-                      border-slate-800
-                      hover:bg-slate-800/40
-                      transition
-                    "
-                  >
-
-                    {/* Order */}
-                    <td className="p-5">
-
-                      <div>
-
-                        <h3
-                          className="
-                            text-white
-                            font-semibold
-                            mb-1
-                          "
-                        >
-                          Order #{order.id}
-                        </h3>
-
-                        <p
-                          className="
-                            text-slate-400
-                            text-sm
-                          "
-                        >
-                          Ecommerce purchase
-                        </p>
-
-                      </div>
-
-                    </td>
-
-                    {/* User */}
-                    <td className="p-5">
-
-                      <span
-                        className="
-                          text-white
-                        "
-                      >
-                        User {order.user_id}
-                      </span>
-
-                    </td>
-
-                    {/* Product */}
-                    <td className="p-5">
-
-                      <span
-                        className="
-                          text-white
-                        "
-                      >
-                        Product {order.product_id}
-                      </span>
-
-                    </td>
-
-                    {/* Quantity */}
-                    <td className="p-5">
-
-                      <span
-                        className="
-                          text-white
-                        "
-                      >
-                        {order.quantity}
-                      </span>
-
-                    </td>
-
-                    {/* Total */}
-                    <td className="p-5">
-
-                      <span
-                        className="
-                          text-violet-400
-                          font-semibold
-                        "
-                      >
-                        ₹ {order.total_price}
-                      </span>
-
-                    </td>
-
-                    {/* Status */}
-                    <td className="p-5">
-
-                      <span
-                        className={`
-                          px-3
-                          py-1
-                          rounded-full
-                          text-xs
-                          font-semibold
-
-                          ${
-                            order.status ===
-                            "pending"
-
-                              ? `
-                                bg-yellow-500/20
-                                text-yellow-400
-                              `
-
-                              : `
-                                bg-green-500/20
-                                text-green-400
-                              `
-                          }
-                        `}
-                      >
-
-                        {order.status}
-
-                      </span>
-
-                    </td>
-
-                    {/* Action */}
-                    <td
-                      className="
-                        p-5
-                        text-right
-                      "
-                    >
-
-                      <button
-                        className="
-                          bg-slate-800
-                          hover:bg-slate-700
-                          transition
-                          text-white
-                          px-4
-                          py-2
-                          rounded-xl
-                          text-sm
-                          font-medium
-                        "
-                      >
-                        View
-                      </button>
-
-                    </td>
-
-                  </tr>
-
-                ))}
-
-              </tbody>
-
-            </table>
-
-          </div>
-
-        </div>
+          {pendingOrders}
+        </h2>
 
       </div>
 
     </div>
 
-  );
+    <div
+      className="
+        bg-slate-900
+        rounded-2xl
+        border
+        border-slate-800
+        overflow-hidden
+      "
+    >
+
+      <table className="w-full">
+
+        <thead>
+
+          <tr
+            className="
+              border-b
+              border-slate-800
+              text-slate-400
+            "
+          >
+
+            <th className="p-5 text-left">
+              Order ID
+            </th>
+
+            <th className="p-5 text-left">
+              User
+            </th>
+
+            <th className="p-5 text-left">
+              Product
+            </th>
+
+            <th className="p-5 text-left">
+              Quantity
+            </th>
+
+            <th className="p-5 text-left">
+              Total
+            </th>
+
+            <th className="p-5 text-left">
+              Status
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          {orders.map((order) => (
+
+            <tr
+              key={order.id}
+              className="
+                border-b
+                border-slate-800
+                hover:bg-slate-800/40
+              "
+            >
+
+              <td className="p-5 text-white">
+                #{order.id}
+              </td>
+
+              <td className="p-5 text-white">
+                {order.user_id}
+              </td>
+
+              <td className="p-5 text-white">
+                {order.product_id}
+              </td>
+
+              <td className="p-5 text-white">
+                {order.quantity}
+              </td>
+
+              <td
+                className="
+                  p-5
+                  text-violet-400
+                  font-semibold
+                "
+              >
+                ₹ {order.total_price}
+              </td>
+
+              <td className="p-5">
+
+                <span
+                  className="
+                    px-3
+                    py-1
+                    rounded-full
+                    text-xs
+                    font-semibold
+                    bg-green-500/20
+                    text-green-400
+                  "
+                >
+                  {order.status}
+                </span>
+
+              </td>
+
+            </tr>
+
+          ))}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+);
 
 };
 

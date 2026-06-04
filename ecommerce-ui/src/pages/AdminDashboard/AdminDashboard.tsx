@@ -1,528 +1,410 @@
+import { useState } from "react";
+
 import { useQuery } from "@tanstack/react-query";
 
 import API from "../../api/axios";
 
 import AdminSidebar from "../../components/AdminSidebar/AdminSidebar";
 
-import { CSVLink } from "react-csv";
+import CreateProductModal from "../../components/CreateProductModal/CreateProductModal";
 
-// Types
 interface DashboardData {
   total_users: number;
-
-  total_orders: number;
-
   total_products: number;
-
+  total_orders: number;
   total_revenue: number;
 }
 
-interface Order {
-  id: number;
-
-  user_id: number;
-
-  total_price: number;
-
-  status: string;
-}
-
-// Fetch Dashboard
 const fetchDashboard = async () => {
   const response = await API.get("/admin/dashboard");
 
-  return response.data.data;
-};
-
-// Fetch Recent Orders
-const fetchRecentOrders = async () => {
-  const response = await API.get("/admin/orders");
-
-  return response.data.data;
+  return (
+    response.data?.data || {
+      total_users: 0,
+      total_products: 0,
+      total_orders: 0,
+      total_revenue: 0,
+    }
+  );
 };
 
 const AdminDashboard = () => {
-  // Dashboard Query
-  const {
-    data: dashboard,
-    isLoading,
-    error,
-  } = useQuery<DashboardData>({
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { data, isLoading, error } = useQuery<DashboardData>({
     queryKey: ["dashboard"],
 
     queryFn: fetchDashboard,
+
+    staleTime: 5 * 60 * 1000,
   });
 
-  // Recent Orders Query
-  const { data: orders = [] } = useQuery<Order[]>({
-    queryKey: ["admin-orders"],
+  const dashboard = data || {
+    total_users: 0,
+    total_products: 0,
+    total_orders: 0,
+    total_revenue: 0,
+  };
 
-    queryFn: fetchRecentOrders,
-  });
-
-  const csvData = orders.map((order) => ({
-    OrderID: order.id,
-
-    UserID: order.user_id,
-
-    TotalPrice: order.total_price,
-
-    Status: order.status,
-  }));
-
-  // Loading
   if (isLoading) {
     return (
-      <h1
+      <div
         className="
-          text-white
-          text-2xl
-          p-10
+          min-h-screen
+          flex
+          items-center
+          justify-center
+          bg-slate-950
         "
       >
-        Loading dashboard...
-      </h1>
+        <h1
+          className="
+            text-white
+            text-2xl
+            font-semibold
+          "
+        >
+          Loading Dashboard...
+        </h1>
+      </div>
     );
   }
 
-  // Error
-  if (error || !dashboard) {
+  if (error) {
     return (
-      <h1
+      <div
         className="
-          text-red-500
-          text-2xl
-          p-10
+          min-h-screen
+          flex
+          items-center
+          justify-center
+          bg-slate-950
         "
       >
-        Failed to load dashboard
-      </h1>
+        <h1
+          className="
+            text-red-500
+            text-2xl
+            font-semibold
+          "
+        >
+          Failed to load dashboard
+        </h1>
+      </div>
     );
   }
 
   return (
     <div
       className="
-        flex
-        min-h-screen
-        bg-slate-950
-      "
+      flex
+      min-h-screen
+      bg-slate-950
+    "
     >
-      {/* Sidebar */}
       <AdminSidebar />
 
-      {/* Main */}
-      <div className="flex-1 p-8">
+      <div
+        className="
+        flex-1
+        p-8
+        bg-slate-950
+      "
+      >
         {/* Header */}
         <div
           className="
-            flex
-            justify-between
-            items-center
-            mb-10
-          "
+          flex
+          flex-col
+          lg:flex-row
+          lg:items-center
+          lg:justify-between
+          gap-6
+          mb-10
+        "
         >
           <div>
+            <p
+              className="
+              text-violet-400
+              font-medium
+              mb-2
+            "
+            >
+              Welcome Back Admin
+            </p>
+
             <h1
               className="
-                text-3xl
-                font-bold
-                text-white
-                mb-2
-              "
+              text-5xl
+              font-bold
+              text-white
+              mb-3
+            "
             >
               Dashboard
             </h1>
 
             <p
               className="
-                text-slate-400
-              "
+              text-slate-400
+              text-lg
+            "
             >
-              Ecommerce analytics overview
+              Manage products, orders and users from one place.
             </p>
           </div>
 
-          <CSVLink
-            data={csvData}
-            filename="orders-report.csv"
+          <button
+            onClick={() => setIsModalOpen(true)}
             className="
-    bg-violet-600
-    hover:bg-violet-700
-    transition
-    text-white
-    px-6
-    py-3
-    rounded-xl
-    font-medium
-  "
+            bg-violet-600
+            hover:bg-violet-700
+            text-white
+            px-8
+            py-4
+            rounded-2xl
+            font-semibold
+            transition
+            shadow-lg
+            shadow-violet-500/20
+          "
           >
-            Generate Report
-          </CSVLink>
+            + Create Product
+          </button>
         </div>
 
-        {/* KPI Cards */}
+        {/* Stats */}
         <div
           className="
-            grid
-            grid-cols-1
-            md:grid-cols-2
-            xl:grid-cols-4
-            gap-6
-            mb-10
-          "
+          grid
+          grid-cols-1
+          md:grid-cols-2
+          xl:grid-cols-4
+          gap-6
+        "
         >
-          {/* Users */}
           <div
             className="
-              bg-slate-900
-              border
-              border-slate-800
-              rounded-2xl
-              p-6
-            "
+            bg-slate-900
+            border
+            border-slate-800
+            rounded-3xl
+            p-6
+            hover:border-violet-500
+            transition
+          "
           >
             <p
               className="
-                text-slate-400
-                text-sm
-                mb-3
-              "
+              text-slate-400
+              mb-3
+            "
             >
               Total Users
             </p>
 
             <h2
               className="
-                text-white
-                text-3xl
-                font-bold
-              "
+              text-white
+              text-5xl
+              font-bold
+            "
             >
               {dashboard.total_users}
             </h2>
           </div>
 
-          {/* Orders */}
           <div
             className="
-              bg-slate-900
-              border
-              border-slate-800
-              rounded-2xl
-              p-6
-            "
+            bg-slate-900
+            border
+            border-slate-800
+            rounded-3xl
+            p-6
+            hover:border-violet-500
+            transition
+          "
           >
             <p
               className="
-                text-slate-400
-                text-sm
-                mb-3
-              "
+              text-slate-400
+              mb-3
+            "
+            >
+              Total Products
+            </p>
+
+            <h2
+              className="
+              text-white
+              text-5xl
+              font-bold
+            "
+            >
+              {dashboard.total_products}
+            </h2>
+          </div>
+
+          <div
+            className="
+            bg-slate-900
+            border
+            border-slate-800
+            rounded-3xl
+            p-6
+            hover:border-violet-500
+            transition
+          "
+          >
+            <p
+              className="
+              text-slate-400
+              mb-3
+            "
             >
               Total Orders
             </p>
 
             <h2
               className="
-                text-white
-                text-3xl
-                font-bold
-              "
+              text-white
+              text-5xl
+              font-bold
+            "
             >
               {dashboard.total_orders}
             </h2>
           </div>
 
-          {/* Products */}
           <div
             className="
-              bg-slate-900
-              border
-              border-slate-800
-              rounded-2xl
-              p-6
-            "
+            bg-slate-900
+            border
+            border-slate-800
+            rounded-3xl
+            p-6
+            hover:border-green-500
+            transition
+          "
           >
             <p
               className="
-                text-slate-400
-                text-sm
-                mb-3
-              "
+              text-slate-400
+              mb-3
+            "
             >
-              Products
+              Total Revenue
             </p>
 
             <h2
               className="
-                text-white
-                text-3xl
-                font-bold
-              "
-            >
-              {dashboard.total_products}
-            </h2>
-          </div>
-
-          {/* Revenue */}
-          <div
-            className="
-              bg-slate-900
-              border
-              border-slate-800
-              rounded-2xl
-              p-6
+              text-green-400
+              text-5xl
+              font-bold
             "
-          >
-            <p
-              className="
-                text-slate-400
-                text-sm
-                mb-3
-              "
-            >
-              Revenue
-            </p>
-
-            <h2
-              className="
-                text-violet-400
-                text-3xl
-                font-bold
-              "
             >
               ₹ {dashboard.total_revenue}
             </h2>
           </div>
         </div>
 
-        {/* Main Grid */}
+        {/* Analytics Section */}
         <div
           className="
-            grid
-            grid-cols-1
-            xl:grid-cols-3
-            gap-6
-          "
+          mt-10
+          grid
+          grid-cols-1
+          lg:grid-cols-2
+          gap-6
+        "
         >
-          {/* Recent Orders */}
           <div
             className="
-              xl:col-span-2
-              bg-slate-900
-              border
-              border-slate-800
-              rounded-2xl
-              p-6
-            "
+            bg-slate-900
+            border
+            border-slate-800
+            rounded-3xl
+            p-8
+          "
           >
-            <div
+            <h3
               className="
-                flex
-                justify-between
-                items-center
-                mb-6
-              "
-            >
-              <h2
-                className="
-                  text-white
-                  text-xl
-                  font-bold
-                "
-              >
-                Recent Orders
-              </h2>
-
-              <button
-                className="
-                  text-violet-400
-                  text-sm
-                "
-              >
-                View All
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              {orders.slice(0, 5).map((order) => (
-                <div
-                  key={order.id}
-                  className="
-                      flex
-                      justify-between
-                      items-center
-                      bg-slate-800
-                      rounded-xl
-                      p-4
-                    "
-                >
-                  <div>
-                    <h3
-                      className="
-                          text-white
-                          font-semibold
-                          mb-1
-                        "
-                    >
-                      Order #{order.id}
-                    </h3>
-
-                    <p
-                      className="
-                          text-slate-400
-                          text-sm
-                        "
-                    >
-                      User ID:
-                      {order.user_id}
-                    </p>
-                  </div>
-
-                  <div
-                    className="
-                        text-right
-                      "
-                  >
-                    <h3
-                      className="
-                          text-white
-                          font-bold
-                          mb-2
-                        "
-                    >
-                      ₹ {order.total_price}
-                    </h3>
-
-                    <span
-                      className="
-                          bg-green-500/20
-                          text-green-400
-                          px-3
-                          py-1
-                          rounded-full
-                          text-xs
-                          font-semibold
-                        "
-                    >
-                      {order.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Quick Stats */}
-          <div
-            className="
-              bg-slate-900
-              border
-              border-slate-800
-              rounded-2xl
-              p-6
+              text-white
+              text-xl
+              font-bold
+              mb-4
             "
-          >
+            >
+              Products Overview
+            </h3>
+
+            <p
+              className="
+              text-slate-400
+            "
+            >
+              Total active products in the store:
+            </p>
+
             <h2
               className="
-                text-white
-                text-xl
-                font-bold
-                mb-6
-              "
+              text-violet-400
+              text-6xl
+              font-bold
+              mt-4
+            "
             >
-              Quick Stats
+              {dashboard.total_products}
             </h2>
+          </div>
 
-            <div className="space-y-5">
-              <div
-                className="
-                  bg-slate-800
-                  rounded-xl
-                  p-5
-                "
-              >
-                <p
-                  className="
-                    text-slate-400
-                    text-sm
-                    mb-2
-                  "
-                >
-                  Average Order Value
-                </p>
+          <div
+            className="
+            bg-slate-900
+            border
+            border-slate-800
+            rounded-3xl
+            p-8
+          "
+          >
+            <h3
+              className="
+              text-white
+              text-xl
+              font-bold
+              mb-4
+            "
+            >
+              Revenue Overview
+            </h3>
 
-                <h3
-                  className="
-                    text-white
-                    text-2xl
-                    font-bold
-                  "
-                >
-                  ₹ 4,500
-                </h3>
-              </div>
+            <p
+              className="
+              text-slate-400
+            "
+            >
+              Total revenue generated from orders.
+            </p>
 
-              <div
-                className="
-                  bg-slate-800
-                  rounded-xl
-                  p-5
-                "
-              >
-                <p
-                  className="
-                    text-slate-400
-                    text-sm
-                    mb-2
-                  "
-                >
-                  Pending Orders
-                </p>
-
-                <h3
-                  className="
-                    text-yellow-400
-                    text-2xl
-                    font-bold
-                  "
-                >
-                  12
-                </h3>
-              </div>
-
-              <div
-                className="
-                  bg-slate-800
-                  rounded-xl
-                  p-5
-                "
-              >
-                <p
-                  className="
-                    text-slate-400
-                    text-sm
-                    mb-2
-                  "
-                >
-                  Monthly Revenue
-                </p>
-
-                <h3
-                  className="
-                    text-violet-400
-                    text-2xl
-                    font-bold
-                  "
-                >
-                  ₹ 1,20,000
-                </h3>
-              </div>
-            </div>
+            <h2
+              className="
+              text-green-400
+              text-6xl
+              font-bold
+              mt-4
+            "
+            >
+              ₹ {dashboard.total_revenue}
+            </h2>
           </div>
         </div>
       </div>
+
+      <CreateProductModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };

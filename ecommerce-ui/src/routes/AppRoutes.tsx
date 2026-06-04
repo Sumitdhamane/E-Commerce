@@ -1,18 +1,9 @@
 import { Routes, Route } from "react-router-dom";
-
 import { lazy, Suspense } from "react";
 
 import MainLayout from "../layouts/MainLayout";
-
 import ProtectedRoute from "./ProtectedRoute";
-
 import AdminRoute from "./AdminRoute";
-
-/*
-|--------------------------------------------------------------------------
-| Lazy Loaded Pages
-|--------------------------------------------------------------------------
-*/
 
 const Home = lazy(() => import("../pages/Home/Home"));
 
@@ -30,21 +21,17 @@ const Orders = lazy(() => import("../pages/Orders/Orders"));
 
 const Cart = lazy(() => import("../pages/Cart/Cart"));
 
-const AdminDashboard = lazy(() => import("../pages/AdminDashboard/AdminDashboard"));
+const AdminDashboard = lazy(
+  () => import("../pages/AdminDashboard/AdminDashboard"),
+);
 
-const AdminProducts = lazy(() => import("../pages/AdminProducts/AdminProducts"));
+const AdminProducts = lazy(
+  () => import("../pages/AdminProducts/AdminProducts"),
+);
 
 const AdminOrders = lazy(() => import("../pages/AdminOrder/AdminOrders"));
 
-const CreateProduct = lazy(() => import("../pages/CreateProduct/CreateProduct"));
-
 const EditProduct = lazy(() => import("../pages/EditProduct/EditProduct"));
-
-/*
-|--------------------------------------------------------------------------
-| App Routes
-|--------------------------------------------------------------------------
-*/
 
 const AppRoutes = () => {
   return (
@@ -66,9 +53,7 @@ const AppRoutes = () => {
       }
     >
       <Routes>
-        {/* Main Layout */}
         <Route element={<MainLayout />}>
-          {/* Public Routes */}
           <Route path="/" element={<Home />} />
 
           <Route path="/products" element={<Products />} />
@@ -79,7 +64,6 @@ const AppRoutes = () => {
 
           <Route path="/signup" element={<Signup />} />
 
-          {/* Protected Cart */}
           <Route
             path="/cart"
             element={
@@ -89,7 +73,6 @@ const AppRoutes = () => {
             }
           />
 
-          {/* Protected Orders */}
           <Route
             path="/orders"
             element={
@@ -100,7 +83,6 @@ const AppRoutes = () => {
           />
         </Route>
 
-        {/* Admin Dashboard */}
         <Route
           path="/admin/dashboard"
           element={
@@ -112,7 +94,6 @@ const AppRoutes = () => {
           }
         />
 
-        {/* Admin Products */}
         <Route
           path="/admin/products"
           element={
@@ -124,7 +105,6 @@ const AppRoutes = () => {
           }
         />
 
-        {/* Admin Orders */}
         <Route
           path="/admin/orders"
           element={
@@ -136,19 +116,6 @@ const AppRoutes = () => {
           }
         />
 
-        {/* Create Product */}
-        <Route
-          path="/admin/products/create"
-          element={
-            <ProtectedRoute>
-              <AdminRoute>
-                <CreateProduct />
-              </AdminRoute>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Edit Product */}
         <Route
           path="/admin/products/edit/:id"
           element={

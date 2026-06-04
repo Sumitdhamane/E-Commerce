@@ -175,24 +175,24 @@ const AdminProducts = () => {
             </p>
           </div>
 
-          {/* Add Product */}
-          <Link
-            to="/admin/products/create"
-            className="
-              bg-violet-600
-              hover:bg-violet-700
-              transition-all
-              px-7
-              py-4
-              rounded-2xl
-              font-semibold
-              shadow-lg
-              shadow-violet-500/20
-            "
-          >
-            Add Product
-          </Link>
-        </div>
+            {/* Add Product */}
+            {/* <Link
+              to="/admin/products/create"
+              className="
+                bg-violet-600
+                hover:bg-violet-700
+                transition-all
+                px-7
+                py-4
+                rounded-2xl
+                font-semibold
+                shadow-lg
+                shadow-violet-500/20
+              "
+            >
+              Add Product
+            </Link> */}
+          </div>
 
         {/* Stats */}
         <div

@@ -34,3 +34,47 @@
 .nav-links a:hover {
   color: #a78bfa;
 }
+
+.logo a {
+  text-decoration: none;
+
+  color: #7c3aed;
+}
+
+.signup-btn {
+  background: #7c3aed;
+
+  color: white !important;
+
+  padding: 10px 18px;
+
+  border-radius: 10px;
+
+  font-weight: 600;
+
+  transition: 0.3s;
+}
+
+.signup-btn:hover {
+  background: #6d28d9;
+
+  color: white !important;
+}
+
+.logout-btn {
+  background: transparent;
+
+  border: none;
+
+  color: white;
+
+  cursor: pointer;
+
+  font-size: 16px;
+
+  transition: 0.3s;
+}
+
+.logout-btn:hover {
+  color: #a78bfa;
+}

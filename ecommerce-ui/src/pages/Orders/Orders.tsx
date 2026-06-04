@@ -3,7 +3,7 @@ import {
 } from "@tanstack/react-query";
 
 import {
-  getOrders,  
+  getOrders,
 } from "../../api/orderApi";
 
 import type {
@@ -12,9 +12,8 @@ import type {
 
 const Orders = () => {
 
-  // Fetch Orders
   const {
-    data: orders = [],
+    data,
     isLoading,
     error,
   } = useQuery<Order[]>({
@@ -25,39 +24,48 @@ const Orders = () => {
 
   });
 
-  // Loading State
+  const orders =
+    Array.isArray(data)
+      ? data
+      : [];
+
   if (isLoading) {
 
     return (
 
-      <h1
-        className="
-          text-white
-          text-3xl
-          p-10
-        "
-      >
-        Loading orders...
-      </h1>
+      <div className="p-10">
+
+        <h1
+          className="
+            text-white
+            text-3xl
+          "
+        >
+          Loading orders...
+        </h1>
+
+      </div>
 
     );
 
   }
 
-  // Error State
   if (error) {
 
     return (
 
-      <h1
-        className="
-          text-red-500
-          text-3xl
-          p-10
-        "
-      >
-        Failed to load orders
-      </h1>
+      <div className="p-10">
+
+        <h1
+          className="
+            text-red-500
+            text-3xl
+          "
+        >
+          Failed to load orders
+        </h1>
+
+      </div>
 
     );
 
@@ -67,7 +75,6 @@ const Orders = () => {
 
     <div className="p-10">
 
-      {/* Heading */}
       <h1
         className="
           text-white
@@ -79,21 +86,32 @@ const Orders = () => {
         My Orders
       </h1>
 
-      {/* Empty State */}
       {orders.length === 0 && (
 
-        <h2
+        <div
           className="
-            text-white
-            text-2xl
+            bg-slate-900
+            border
+            border-slate-800
+            rounded-2xl
+            p-8
+            text-center
           "
         >
-          No orders found
-        </h2>
+
+          <h2
+            className="
+              text-white
+              text-2xl
+            "
+          >
+            No orders found
+          </h2>
+
+        </div>
 
       )}
 
-      {/* Orders List */}
       <div className="space-y-6">
 
         {orders.map((order) => (
@@ -104,96 +122,74 @@ const Orders = () => {
 
             className="
               bg-slate-900
-              rounded-2xl
-              p-8
               border
               border-slate-800
+              rounded-2xl
+              p-8
             "
           >
 
-            {/* Order ID */}
             <h2
               className="
                 text-white
-                text-3xl
+                text-2xl
                 font-bold
-                mb-6
+                mb-5
               "
             >
               Order #{order.id}
             </h2>
 
-            {/* Product ID */}
-            <p
-              className="
-                text-slate-300
-                text-lg
-                mb-3
-              "
-            >
-              Product ID:
-              <span className="text-white ml-2">
-                {order.product_id}
-              </span>
-            </p>
+            <div className="space-y-3">
 
-            {/* Quantity */}
-            <p
-              className="
-                text-slate-300
-                text-lg
-                mb-3
-              "
-            >
-              Quantity:
-              <span className="text-white ml-2">
-                {order.quantity}
-              </span>
-            </p>
+              <p className="text-slate-300">
+                Product ID:
+                <span className="text-white ml-2">
+                  {order.product_id}
+                </span>
+              </p>
 
-            {/* Total Price */}
-            <p
-              className="
-                text-slate-300
-                text-lg
-                mb-3
-              "
-            >
-              Total Price:
-              <span
-                className="
-                  text-violet-400
-                  ml-2
-                  font-bold
-                "
-              >
-                ₹ {order.total_price}
-              </span>
-            </p>
+              <p className="text-slate-300">
+                Quantity:
+                <span className="text-white ml-2">
+                  {order.quantity}
+                </span>
+              </p>
 
-            {/* Status */}
-            <p
-              className="
-                text-slate-300
-                text-lg
-              "
-            >
-              Status:
-              <span
-                className="
-                  ml-2
-                  px-4
-                  py-1
-                  rounded-full
-                  bg-green-500/20
-                  text-green-400
-                  text-sm
-                  font-bold
-                "
-              >
-                {order.status}
-              </span>
-            </p>
+              <p className="text-slate-300">
+                Total:
+                <span
+                  className="
+                    text-violet-400
+                    font-bold
+                    ml-2
+                  "
+                >
+                  ₹ {order.total_price}
+                </span>
+              </p>
+
+              <p className="text-slate-300">
+
+                Status:
+
+                <span
+                  className="
+                    ml-2
+                    px-3
+                    py-1
+                    rounded-full
+                    bg-green-500/20
+                    text-green-400
+                    text-sm
+                  "
+                >
+                  {order.status}
+                </span>
+
+              </p>
+
+            </div>
 
           </div>
 
